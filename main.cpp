@@ -2,7 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
-
+#include <sstream>
 using namespace std;
 
 
@@ -110,7 +110,7 @@ vector <token> Tabela(vector <char> textoIn)
             }
             posicao++;
         }
-        else if(textoIn[posicao]>= 'a' && textoIn[posicao] <= 'z')
+        else if(textoIn[posicao]>= 'a' && textoIn[posicao] <= 'z'||textoIn[posicao]>= 'A' && textoIn[posicao] <= 'Z')
         {
 
             while(textoIn[posicao]!='\0')
@@ -173,19 +173,76 @@ vector <token> Tabela(vector <char> textoIn)
         }
         else if(textoIn[posicao] == ';' || textoIn[posicao] == '.' || textoIn[posicao] == ':' || textoIn[posicao] == '(' || textoIn[posicao] == ')' || textoIn[posicao] == ',')//Delimitadores
         {
-        //FALTA IMPLEMENTAR
+            if(textoIn[posicao] == ':' && textoIn[posicao+1] == '=')
+            {
+                //posicao++;
+                //posicaoChar++;
+                aux.tokenNome = ":=";
+                aux.tokenTipo = "Atribuicao";//IMPORTANTE NO FUTURO
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+            }
+            else
+            {
+                stringstream ss;
+                string s;
+                ss << textoIn[posicao];
+                ss >> s;
+                aux.tokenNome = s;
+                aux.tokenTipo = "Delimitador";
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+
+            }
         }
         else if(textoIn[posicao] == '<' || textoIn[posicao]  == '>' || textoIn[posicao] == '=')//RELACIONAIS
         {
-        //FALTA IMPLEMENTAR
+        //Faltando
         }
         else if(textoIn[posicao] == '+' || textoIn[posicao] == '-')//ADITIVOS
         {
-        //FALTA IMPLEMENTAR
+        //Não otimizado***
+            if(textoIn[posicao] == '+')
+            {
+                aux.tokenNome = "+";
+                aux.tokenTipo = "Operador Aditivo";
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+            }
+            else if(textoIn[posicao] == '-')
+            {
+                aux.tokenNome = "-";
+                aux.tokenTipo = "Operador Aditivo";
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+            }
         }
         else if(textoIn[posicao] == '/' || textoIn[posicao] == '*')//MULTIPLICATIVOS
         {
-        //FALTA IMPLEMENTAR
+            stringstream ss;
+            string s;
+            ss << textoIn[posicao];
+            ss >> s;
+            aux.tokenNome = s;
+            aux.tokenTipo = "Operador Multiplicativo";
+            aux.linha = linhaAtual;
+            tokenLista.push_back(aux);
+            //Não otimizado
+            /*
+            if(textoIn[posicao] == '/')
+            {
+                aux.tokenNome = "/";
+                aux.tokenTipo = "Operador Multiplicativo";
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+            }
+            else if(textoIn[posicao] == '*')
+            {
+                aux.tokenNome = "*";
+                aux.tokenTipo = "Operador Multiplicativo";
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+            }*/
         }
         posicao++;
     }
@@ -201,7 +258,7 @@ int main()
     int tamTokenLista = y.size();
     for(int i = 0; i < tamTokenLista; i++)
     {
-        cout << y[i].tokenNome << " " << y[i].tokenTipo << " " << y[i].linha << endl;
+        cout << y[i].tokenNome << " " << y[i].tokenTipo << " " << y[i].linha << "  " << i << endl;
     }
 
     return 0;
