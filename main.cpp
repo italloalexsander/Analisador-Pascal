@@ -39,6 +39,9 @@ vector <token> Tabela(vector <char> textoIn)
     vector <token> tokenLista;
     vector <token> error;
     token aux;
+    int espaco = 0;
+    int tab = 0;
+    int vtab = 0;
     char arrayaux[20];
     while(textoIn[posicao] != '\0')
     {
@@ -78,7 +81,7 @@ vector <token> Tabela(vector <char> textoIn)
                 }
                 else if((textoIn[posicao] == '.') && !(real))
                 {
-                    arrayaux[posicaoChar] == textoIn[posicao];
+                    arrayaux[posicaoChar] = textoIn[posicao];
                     posicaoChar++;
                     posicao++;
                     real = 1;
@@ -115,8 +118,7 @@ vector <token> Tabela(vector <char> textoIn)
 
             while(textoIn[posicao]!='\0')
             {
-                //FALTA ADICIONAR '_'
-                if((textoIn[posicao] >= 'a') && (textoIn[posicao] <= 'z')||((textoIn[posicao] >= '0') && (textoIn[posicao] <= '9'))||((textoIn[posicao] >= 'A'&& (textoIn[posicao] <= 'Z'))))
+                if((textoIn[posicao] >= 'a') && (textoIn[posicao] <= 'z')||((textoIn[posicao] >= '0') && (textoIn[posicao] <= '9'))||((textoIn[posicao] >= 'A'&& (textoIn[posicao] <= 'Z')||(textoIn[posicao] == '_' ))))
                 {
                     arrayaux[posicaoChar] = textoIn[posicao];
                     posicaoChar++;
@@ -175,8 +177,7 @@ vector <token> Tabela(vector <char> textoIn)
         {
             if(textoIn[posicao] == ':' && textoIn[posicao+1] == '=')
             {
-                //posicao++;
-                //posicaoChar++;
+                posicao++;
                 aux.tokenNome = ":=";
                 aux.tokenTipo = "Atribuicao";//IMPORTANTE NO FUTURO
                 aux.linha = linhaAtual;
@@ -197,11 +198,57 @@ vector <token> Tabela(vector <char> textoIn)
         }
         else if(textoIn[posicao] == '<' || textoIn[posicao]  == '>' || textoIn[posicao] == '=')//RELACIONAIS
         {
-        //Faltando
+            stringstream ss, dd;
+            string s, extra, extra2;
+            if(textoIn[posicao] == '=')
+            {
+                ss << textoIn[posicao];
+                ss >> s;
+                aux.tokenNome = s;
+                aux.tokenTipo = "Operador Relacional";
+                aux.linha = linhaAtual;
+                tokenLista.push_back(aux);
+            }
+            else if(textoIn[posicao] == '<' || textoIn[posicao] == '>')
+            {
+                if(textoIn[posicao+1] >= '<'|| textoIn[posicao+1] <= '>')
+                {
+                    ss << textoIn[posicao];
+                    ss >> s;
+                    dd << textoIn[posicao + 1];
+                    dd >> extra;
+                    extra2 = s + extra;
+                    if(extra2 == ">="||
+                       extra2 == "<="||
+                       extra2 == "<>")
+                    {
+                        aux.tokenNome = extra2;
+                        aux.tokenTipo = "Operador Relacional";
+                        aux.linha = linhaAtual;
+                        tokenLista.push_back(aux);
+                        posicao++;
+                    }else
+                    {
+                    aux.tokenNome = s;
+                    aux.tokenTipo = "Operador Relacional";
+                    aux.linha = linhaAtual;
+                    tokenLista.push_back(aux);
+                    //posicao++;
+                    }
+                }
+            }
         }
         else if(textoIn[posicao] == '+' || textoIn[posicao] == '-')//ADITIVOS
         {
-        //Não otimizado***
+            stringstream ss;
+            string s;
+            ss << textoIn[posicao];
+            ss >> s;
+            aux.tokenNome = s;
+            aux.tokenTipo = "Operador Aditivo";
+            aux.linha = linhaAtual;
+            tokenLista.push_back(aux);
+        /*Não otimizado***
             if(textoIn[posicao] == '+')
             {
                 aux.tokenNome = "+";
@@ -215,7 +262,7 @@ vector <token> Tabela(vector <char> textoIn)
                 aux.tokenTipo = "Operador Aditivo";
                 aux.linha = linhaAtual;
                 tokenLista.push_back(aux);
-            }
+            }*/
         }
         else if(textoIn[posicao] == '/' || textoIn[posicao] == '*')//MULTIPLICATIVOS
         {
@@ -227,6 +274,7 @@ vector <token> Tabela(vector <char> textoIn)
             aux.tokenTipo = "Operador Multiplicativo";
             aux.linha = linhaAtual;
             tokenLista.push_back(aux);
+        }
             //Não otimizado
             /*
             if(textoIn[posicao] == '/')
@@ -243,8 +291,28 @@ vector <token> Tabela(vector <char> textoIn)
                 aux.linha = linhaAtual;
                 tokenLista.push_back(aux);
             }*/
+
+        else if(textoIn[posicao] == ' '||textoIn[posicao] == 32)
+        {
+            espaco = 1;
+        }
+        else if(textoIn[posicao] == '   '||textoIn[posicao] == 11)
+        {
+            tab = 1;
+        }
+        else if(textoIn[posicao] == 13)
+        {
+            vtab = 1;
+        }
+        else if((!espaco)||(!tab)||(!vtab))
+        {
+            cout << "Caractere não reconhecido: " << textoIn[posicao] << endl;
+            cout << "Linha " << linhaAtual << endl;
+            return error;
         }
         posicao++;
+        espaco = 0;
+
     }
     return tokenLista;
 }
@@ -258,7 +326,7 @@ int main()
     int tamTokenLista = y.size();
     for(int i = 0; i < tamTokenLista; i++)
     {
-        cout << y[i].tokenNome << " " << y[i].tokenTipo << " " << y[i].linha << "  " << i << endl;
+        cout << y[i].tokenNome << " " << y[i].tokenTipo << " " << y[i].linha << endl;
     }
 
     return 0;

@@ -1,7 +1,11 @@
 program teste; {programa exemplo}
-var
+var                
 valor1: integer;
 valor2: real;
+4 = 5
 begin
 valor1 := 10;
+<>
+<
+>>
 end.
