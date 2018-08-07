@@ -41,7 +41,6 @@ vector <token> Tabela(vector <char> textoIn)
     token aux;
     int espaco = 0;
     int tab = 0;
-    int vtab = 0;
     char arrayaux[20];
     while(textoIn[posicao] != '\0')
     {
@@ -296,15 +295,11 @@ vector <token> Tabela(vector <char> textoIn)
         {
             espaco = 1;
         }
-        else if(textoIn[posicao] == '   '||textoIn[posicao] == 11)
+        else if(textoIn[posicao] == '   '||(textoIn[posicao] >= 9 && textoIn[posicao] <= 13))
         {
             tab = 1;
         }
-        else if(textoIn[posicao] == 13)
-        {
-            vtab = 1;
-        }
-        else if((!espaco)||(!tab)||(!vtab))
+        else if((!espaco)||(!tab))
         {
             cout << "Caractere não reconhecido: " << textoIn[posicao] << endl;
             cout << "Linha " << linhaAtual << endl;
@@ -312,6 +307,7 @@ vector <token> Tabela(vector <char> textoIn)
         }
         posicao++;
         espaco = 0;
+        tab = 0;
 
     }
     return tokenLista;
