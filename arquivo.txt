@@ -1,11 +1,40 @@
-program teste;	 {programa exemplo}
-var                
-valor1: integer;
-valor2: real;
-4 = 5
-begin
-valor1 := 10;
-<>
-<
->>
+program Test3; {programa para teste do lexico}
+ 
+22.5x32.6y 56.8y
+
+var
+   NUMERO_x2  : integer;
+   final   : integer;
+
+procedure xyz;
+var
+   x1 : integer;
+   x2 : boolean;
+   begin
+   x1 := 2
+   end
+
+
+begin  { tente gerar um erro usando um caracter n‹o permitido.. tipo $
+    adsasdasdas
+    adsda
+    das
+    /n /n /n /n '/n'
+    asd
+    1
+    x
+}
+   //NUMERO :=3*5+7+9/2-5+6*8;
+   NUMERO := 3.9 + 25;
+   if (NUMERO = 21) and (NUMERO >=190) then
+      NUMERO := 10 / 3;
+   final := NUMERO + 2;
+   if(NUMERO = 22) then
+      NUMERO := 2
+      else
+      NUMERO := 3;
+   final:= 2
+
 end.
+
+

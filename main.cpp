@@ -38,10 +38,11 @@ vector <token> Tabela(vector <char> textoIn)
     int posicao = 0;
     vector <token> tokenLista;
     vector <token> error;
+	string backup;
     token aux;
     int espaco = 0;
     int tab = 0;
-    char arrayaux[20];
+    char arrayaux[40];
     while(textoIn[posicao] != '\0')
     {
         int posicaoChar = 0;
@@ -50,6 +51,11 @@ vector <token> Tabela(vector <char> textoIn)
         {
             linhaAtual++;
         }
+        if(textoIn[posicao]== '/' && textoIn[posicao + 1]=='/')
+            while(textoIn[posicao+1]!='\n')
+            {
+                posicao++;
+            }
         else if(textoIn[posicao] == '{')
         {
             while(!(textoIn[posicao] == '}'))
@@ -68,6 +74,7 @@ vector <token> Tabela(vector <char> textoIn)
         }
         else if(textoIn[posicao]>= '0' && textoIn[posicao] <= '9')
         {
+            int posicaoprevia = 0, x = 0, y = 0, z = 0;
             int real = 0;
             while(textoIn[posicao]!= '\0')
             {
@@ -84,6 +91,7 @@ vector <token> Tabela(vector <char> textoIn)
                     posicaoChar++;
                     posicao++;
                     real = 1;
+					
                 }
                 else
                 {
@@ -94,12 +102,107 @@ vector <token> Tabela(vector <char> textoIn)
             }
             if(real)
             {
-                aux.linha = linhaAtual;
-                aux.tokenTipo = "Numero Real";
+				
+				posicaoprevia = posicao;
                 string lido(arrayaux, posicaoChar);
-                memset(arrayaux, 0, sizeof(arrayaux));
-                aux.tokenNome = lido;
-                tokenLista.push_back(aux);
+                if(textoIn[posicao+1]=='x')
+                {
+                    
+                    arrayaux[posicaoChar] = textoIn[posicao + 1];
+                    x = 1;
+                    posicaoChar++;
+                    posicao++;
+					
+                    if(textoIn[posicao+1]>= '0' && textoIn[posicao+1] <= '9')
+                    {
+                        posicao++;
+						real = 0;
+                        while(textoIn[posicao]!= '\0')
+                        {
+                        if(textoIn[posicao] >= '0' && textoIn[posicao] <= '9')
+                        {
+                            arrayaux[posicaoChar] = textoIn[posicao];
+                            posicaoChar++;
+                            posicao++;
+                        }
+                        else if((textoIn[posicao] == '.') && !(real))
+                        {
+                            arrayaux[posicaoChar] = textoIn[posicao];
+                            posicaoChar++;
+                            posicao++;
+                            real = 1;
+                        }
+                        else{
+                            posicao--;
+                            break;
+                        }
+						
+						}
+                        if(real)
+                        {
+
+                            if(textoIn[posicao+1]=='y')
+                            {
+								y = 1;
+								arrayaux[posicaoChar] = textoIn[posicao + 1];
+								posicaoChar++;
+								posicao++;
+								
+								if(textoIn[posicao+1] >= '0' && textoIn[posicao+1] <= '9')
+								{
+									posicao++;
+									real = 0;
+									while(textoIn[posicao]!='\0')
+									{
+										if(textoIn[posicao] >= '0' && textoIn[posicao] <= '9')
+										{
+											arrayaux[posicaoChar] = textoIn[posicao];
+											posicaoChar++;
+											posicao++;
+										}
+										else if((textoIn[posicao] == '.') && !(real))
+										{
+											arrayaux[posicaoChar] = textoIn[posicao];
+											posicaoChar++;
+											posicao++;
+											real = 1;
+										}
+										else
+										{
+											posicao--;
+											break;
+										}
+									}
+									if(real)
+									{
+										if(textoIn[posicao+1]=='z')
+										{
+											
+											z = 1;
+											arrayaux[posicaoChar] = textoIn[posicao + 1];
+											posicaoChar++;
+											aux.linha = linhaAtual;
+											aux.tokenTipo = "Real3D";
+											string lido2(arrayaux, posicaoChar);
+											memset(arrayaux, 0, sizeof(arrayaux));
+											aux.tokenNome = lido2;
+											tokenLista.push_back(aux);
+										}
+									}
+								}
+							}
+							
+                        }
+                    }
+                }
+                if(!x||!y||!z)
+                {	
+					aux.linha = linhaAtual;
+					aux.tokenTipo = "Real";
+					aux.tokenNome = lido;
+					tokenLista.push_back(aux);
+					posicao = posicaoprevia;
+                }
             }
             else
             {
@@ -109,8 +212,9 @@ vector <token> Tabela(vector <char> textoIn)
                 memset(arrayaux, 0, sizeof(arrayaux));
                 aux.tokenNome = lido;
                 tokenLista.push_back(aux);
+				posicao;
             }
-            posicao++;
+            //posicao++;
         }
         else if(textoIn[posicao]>= 'a' && textoIn[posicao] <= 'z'||textoIn[posicao]>= 'A' && textoIn[posicao] <= 'Z')
         {
@@ -322,7 +426,7 @@ int main()
     int tamTokenLista = y.size();
     for(int i = 0; i < tamTokenLista; i++)
     {
-        cout << y[i].tokenNome << " " << y[i].tokenTipo << " " << y[i].linha << endl;
+        cout << y[i].tokenNome << " -- " << y[i].tokenTipo << " -- " << y[i].linha << endl;
     }
 
     return 0;
