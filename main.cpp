@@ -445,7 +445,7 @@ int lista_de_identificadores2(vector <token> tabela, int must)
 		}
 		else
 		{
-			printf("\n SINTATICO -> ERRO linha %d ID", tabela[pos].linha);
+			printf("\nERRO linha %d ID", tabela[pos].linha);
 			return 1;
 		}
 	}
@@ -469,7 +469,7 @@ int lista_de_identificadores(vector <token> tabela, int must)
 	{
 		if(must)
 		{
-			printf("\n SINTATICO -> ERRO linha %d ID", tabela[pos].linha);
+			printf("\nERRO linha %d ID", tabela[pos].linha);
 			return 1;
 		}
 	
@@ -501,14 +501,14 @@ int lista_declaracoes_variaveis2(vector <token> tabela, int must)
 				}
 				else
 				{
-					printf("\n SINTATICO -> ERROR linha %d expected ';'", tabela[pos].linha);
+					printf("\nERROR linha %d expected ';'", tabela[pos].linha);
 					return 1;
 				}
 			}
 		}
 		else
 		{
-			printf("\n SINTATICO -> ERROR linha %d expected ':'", tabela[pos].linha);
+			printf("\nERROR linha %d expected ':'", tabela[pos].linha);
 			return 1;
 		}
 	}
@@ -538,7 +538,7 @@ int tipo(vector <token> tabela, int must)
 	
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d TIPO", tabela[pos].linha);
+		printf("\nERRO linha %d TIPO", tabela[pos].linha);
 	}
 	
 	return 1;
@@ -567,7 +567,7 @@ int lista_declaracoes_variaveis(vector <token> tabela, int must)
 			{
 				if(must)
 				{
-					printf("\n SINTATICO -> ERRO linha %d expected ';'", tabela[pos].linha);
+					printf("\nERRO linha %d expected ';'", tabela[pos].linha);
 				}
 			}
 		}
@@ -576,7 +576,7 @@ int lista_declaracoes_variaveis(vector <token> tabela, int must)
 	{
 		if(must)
 		{
-			printf("\n SINTATICO -> ERRO linha %d expected ':'", tabela[pos].linha);
+			printf("\nERRO linha %d expected ':'", tabela[pos].linha);
 		}
 		
 	}
@@ -621,7 +621,7 @@ int lista_de_parametros2(vector <token> tabela, int must)
 			}
 			else
 			{
-				printf("\n SINTATICO -> ERRO linha %d expected ':'", tabela[pos].linha);
+				printf("\nERRO linha %d expected ':'", tabela[pos].linha);
 			}
 		}
 		
@@ -654,7 +654,7 @@ int lista_de_parametros(vector <token> tabela, int must)
 		}
 		else
 		{
-			printf("\n SINTATICO -> ERRO linha %d expected ':'", tabela[pos].linha);	
+			printf("\nERRO linha %d expected ':'", tabela[pos].linha);	
 		}
 	}	
 	return 1;
@@ -674,7 +674,7 @@ int argumentos(vector <token> tabela, int must)
 			}
 			else
 			{
-				printf("\n SINTATICO -> ERRO linha %d expected ')'", tabela[pos].linha);
+				printf("\nERRO linha %d expected ')'", tabela[pos].linha);
 				return 1;
 			}
 			
@@ -702,7 +702,7 @@ int sinal(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d SINAL", tabela[pos].linha);	
+		printf("\nERRO linha %d SINAL", tabela[pos].linha);	
 	}
 	return 1;
 }
@@ -723,7 +723,7 @@ int op_multiplicativo(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d expected OP_MULTIPLICATIVO", tabela[pos].linha);	
+		printf("\nERRO linha %d expected OP_MULTIPLICATIVO", tabela[pos].linha);	
 	}
 	return 1;
 }
@@ -745,7 +745,7 @@ int op_aditivo(vector <token> tabela, int must)
 	
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d expected OP_ADITIVO", tabela[pos].linha);
+		printf("\nERRO linha %d expected OP_ADITIVO", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -778,7 +778,7 @@ int op_relacional(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d expected OP_RELACIONAL", tabela[pos].linha);
+		printf("\nERRO linha %d expected OP_RELACIONAL", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -818,7 +818,7 @@ int termo(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d TERMO INDETERMINADO", tabela[pos].linha);
+		printf("\nERRO linha %d TERMO INDETERMINADO", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -841,7 +841,7 @@ int fator(vector <token> tabela, int must)
 				}
 				else
 				{
-					printf("\n SINTATICO -> ERRO linha %d expected ')'", tabela[pos].linha);
+					printf("\nERRO linha %d expected ')'", tabela[pos].linha);
 				}
 			}
 			return 1;
@@ -880,7 +880,7 @@ int fator(vector <token> tabela, int must)
 			}
 			else
 			{
-				printf("\n SINTATICO -> ERRO linha %d expected ')'", tabela[pos].linha);
+				printf("\nERRO linha %d expected ')'", tabela[pos].linha);
 			}
 		}
 		
@@ -896,7 +896,7 @@ int fator(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d FATOR INDETERMINADO", tabela[pos].linha);
+		printf("\nERRO linha %d FATOR INDETERMINADO", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -948,7 +948,7 @@ int expressao_simples(vector <token> tabela, int must)
 
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d TERMO EXPRESSAO", tabela[pos].linha);
+		printf("\nERRO linha %d TERMO", tabela[pos].linha);
 		return 1;
 	}
 	return 0;
@@ -1051,7 +1051,7 @@ int ativacao_de_procedimento(vector <token> tabela, int must)
 				}
 				else
 				{
-					printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+					printf("\nERRO linha %d", tabela[pos].linha);
 				}
 			}
 		}
@@ -1064,7 +1064,7 @@ int ativacao_de_procedimento(vector <token> tabela, int must)
 	{
 		if(must)
 		{
-			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			printf("\nERRO linha %d", tabela[pos].linha);
 		}
 	}
 	return 1;
@@ -1078,7 +1078,7 @@ int variavel(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		printf("\nERRO linha %d", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -1098,7 +1098,7 @@ int comando(vector <token> tabela, int must)
 		}
 		else
 		{
-			printf("\n SINTATICO -> ERRO linha %d :=", tabela[pos].linha);
+			printf("\nERRO linha %d :=", tabela[pos].linha);
 		}
 		
 		return 1;
@@ -1132,7 +1132,7 @@ int comando(vector <token> tabela, int must)
 			}
 			else
 			{
-				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 		}
 		
@@ -1153,7 +1153,7 @@ int comando(vector <token> tabela, int must)
 			}
 			else
 			{
-				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 		}
 		
@@ -1163,7 +1163,7 @@ int comando(vector <token> tabela, int must)
 	
 	if(must)
 	{
-		printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		printf("\nERRO linha %d", tabela[pos].linha);
 		return 1;
 	}
 	
@@ -1225,7 +1225,7 @@ int comando_composto(vector <token> tabela, int must)
 		{
 			if(must)
 			{
-				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 		}
 	}
@@ -1233,7 +1233,7 @@ int comando_composto(vector <token> tabela, int must)
 	{
 		if(must)
 		{
-			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			printf("\nERRO linha %d", tabela[pos].linha);
 		}
 	}
 	return 1;
@@ -1269,13 +1269,13 @@ int declaracao_de_subprograma(vector <token> tabela, int must)
 				}
 				else
 				{
-					printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+					printf("\nERRO linha %d", tabela[pos].linha);
 				}
 			}
 		}
 		else
 		{
-			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			printf("\nERRO linha %d", tabela[pos].linha);
 		}
 	}
 	else
@@ -1283,7 +1283,7 @@ int declaracao_de_subprograma(vector <token> tabela, int must)
 		pos--;
 		if(must)
 		{
-			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			printf("\nERRO linha %d", tabela[pos].linha);
 			return 1;
 		}
 	}
@@ -1312,7 +1312,7 @@ int declaracoes_de_subprogramas2(vector <token> tabela, int must)
 		{
 			if(must)
 			{
-				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 			return 1;
 		}
@@ -1357,7 +1357,7 @@ int programa(vector <token> tabela, int must)
 				{
 					if(must)
 					{
-						printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+						printf("\nERRO linha %d", tabela[pos].linha);
 					}
 				}
 			}
@@ -1365,7 +1365,7 @@ int programa(vector <token> tabela, int must)
 			{
 				if(must)
 				{
-					printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+					printf("\nERRO linha %d", tabela[pos].linha);
 				}
 			}
 		}
@@ -1373,7 +1373,7 @@ int programa(vector <token> tabela, int must)
 		{
 			if(must)
 			{
-				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 		}
 	}
@@ -1381,7 +1381,7 @@ int programa(vector <token> tabela, int must)
 	{
 		if(must)
 		{
-			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			printf("\nERRO linha %d", tabela[pos].linha);
 		}
 	}
 	return 1;
@@ -1395,7 +1395,7 @@ int Sintatico(vector <token> tabela)
 	}
 	else
 	{
-		printf("\nSINTATICO -> CONCLUIDO");
+		printf("\n\nSINTATICO -> CONCLUIDO");
 		return 0;
 	}
 }
