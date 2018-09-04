@@ -1393,15 +1393,13 @@ int Sintatico(vector <token> tabela)
 	{
 		return 1;
 	}
-	printf("\nÊxito...");
-	return 0;
+	else
+	{
+		printf("\nSINTATICO -> CONCLUIDO");
+		return 0;
+	}
 }
-/*int AnalisadorSintatico(vector <token> tabela)
-{
-	
-	if(Program(1))
-		
-}*/
+
 
 int main()
 {
