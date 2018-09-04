@@ -5,12 +5,23 @@
 #include <sstream>
 using namespace std;
 
+int pos = 0;
 
 typedef struct{
     string tokenNome;
     string tokenTipo;
     int linha;
 }token;
+
+
+int tipo(vector <token> tabela, int must);
+int lista_de_expressoes(vector <token> tabela, int must);
+int declaracoes_de_subprogramas(vector <token> tabela, int must);
+int fator(vector <token> tabela, int must);
+int comando(vector <token> tabela, int must);
+int comando_composto(vector <token> tabela, int must);
+int expressao(vector <token> tabela, int must);
+
 
 vector <char> leArquivo(const char *arq)
 {
@@ -187,6 +198,7 @@ vector <token> Tabela(vector <char> textoIn)
 											memset(arrayaux, 0, sizeof(arrayaux));
 											aux.tokenNome = lido2;
 											tokenLista.push_back(aux);
+											posicao++;
 										}
 									}
 								}
@@ -417,6 +429,980 @@ vector <token> Tabela(vector <char> textoIn)
     return tokenLista;
 }
 
+int lista_de_identificadores2(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == ",")
+	{
+		pos++;
+		if(tabela[pos].tokenTipo == "Identificador")
+		{
+			pos++;
+			if(lista_de_identificadores2(tabela, must))
+			{
+				return 1;
+			}
+			
+		}
+		else
+		{
+			printf("\n SINTATICO -> ERRO linha %d ID", tabela[pos].linha);
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
+int lista_de_identificadores(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenTipo == "Identificador")//Possivel alteraÁ„o depois para strcmp
+	{
+		pos++;
+		if(lista_de_identificadores2(tabela, 0))
+		{
+			return 1;
+		}
+		
+		return 0;
+	}
+	else
+	{
+		if(must)
+		{
+			printf("\n SINTATICO -> ERRO linha %d ID", tabela[pos].linha);
+			return 1;
+		}
+	
+	}
+	
+	return 1;
+}
+
+
+int lista_declaracoes_variaveis2(vector <token> tabela, int must)
+{
+	if(!lista_de_identificadores(tabela, must))
+	{
+		if(tabela[pos].tokenNome == ":")
+		{
+			pos++;
+			if(!tipo(tabela, 1))
+			{
+				pos++;
+				if(tabela[pos].tokenNome == ";")
+				{
+					pos++;
+					if(lista_declaracoes_variaveis2(tabela, must) == 1)
+					{
+						return 1;
+					}
+					return 0;
+					
+				}
+				else
+				{
+					printf("\n SINTATICO -> ERROR linha %d expected ';'", tabela[pos].linha);
+					return 1;
+				}
+			}
+		}
+		else
+		{
+			printf("\n SINTATICO -> ERROR linha %d expected ':'", tabela[pos].linha);
+			return 1;
+		}
+	}
+	else
+	{
+		pos--;
+	}
+	return 0;
+}
+
+int tipo(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "integer")
+	{
+		return 0;
+	}
+	
+	else if(tabela[pos].tokenNome == "real")
+	{
+		return 0;
+	}
+	
+	else if(tabela[pos].tokenNome == "boolean")
+	{
+		return 0;
+	}
+	
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d TIPO", tabela[pos].linha);
+	}
+	
+	return 1;
+}
+
+int lista_declaracoes_variaveis(vector <token> tabela, int must)
+{
+	lista_de_identificadores(tabela, must);
+	if(tabela[pos].tokenNome == ":")
+	{
+		pos++;
+		if(!tipo(tabela, 1))
+		{
+			pos++;
+			if(tabela[pos].tokenNome == ";")
+			{
+				pos++;
+				if(lista_declaracoes_variaveis2(tabela, 0))
+				{
+					return 1;
+				}
+				
+				return 0;
+			}
+			else
+			{
+				if(must)
+				{
+					printf("\n SINTATICO -> ERRO linha %d expected ';'", tabela[pos].linha);
+				}
+			}
+		}
+	}
+	else
+	{
+		if(must)
+		{
+			printf("\n SINTATICO -> ERRO linha %d expected ':'", tabela[pos].linha);
+		}
+		
+	}
+	
+	return 1;
+}
+
+int declaracoes_variaveis(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "var")
+	{
+		pos++;
+		lista_declaracoes_variaveis(tabela, 1);
+	}
+	else
+	{
+		pos--;
+	}
+	return 0;
+}
+
+int lista_de_parametros2(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == ";")
+	{
+		pos++;
+		if(!lista_de_identificadores(tabela, 1))
+		{
+			pos++;
+			if(tabela[pos].tokenNome == ":")
+			{
+				pos++;
+				if(!tipo(tabela, 1))
+				{
+					pos++;
+					if(!lista_de_parametros2(tabela, 0))
+					{
+						return 0;
+					}
+		
+				}
+			}
+			else
+			{
+				printf("\n SINTATICO -> ERRO linha %d expected ':'", tabela[pos].linha);
+			}
+		}
+		
+		return 1;
+	}
+	else
+	{
+		pos--;
+	}
+	
+	return 0;
+}
+
+int lista_de_parametros(vector <token> tabela, int must)
+{
+	if(!lista_de_identificadores(tabela, must))
+	{
+		pos++;
+		if(tabela[pos].tokenNome == ":")
+		{
+			pos++;
+			if(!tipo(tabela, must))
+			{
+				pos++;
+				if(!lista_de_parametros2(tabela, 0))
+				{
+					return 0;
+				}
+			}
+		}
+		else
+		{
+			printf("\n SINTATICO -> ERRO linha %d expected ':'", tabela[pos].linha);	
+		}
+	}	
+	return 1;
+}
+
+int argumentos(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "(")
+	{
+		pos++;
+		if(!lista_de_parametros(tabela, 1))
+		{
+			pos++;
+			if(tabela[pos].tokenNome == ")")
+			{
+				return 0;
+			}
+			else
+			{
+				printf("\n SINTATICO -> ERRO linha %d expected ')'", tabela[pos].linha);
+				return 1;
+			}
+			
+		}
+
+		return 1;
+	}
+	else
+	{
+		pos--;
+	}
+	
+	return 0;
+}
+
+int sinal(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "+")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "-")
+	{
+		return 0;
+	}
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d SINAL", tabela[pos].linha);	
+	}
+	return 1;
+}
+
+int op_multiplicativo(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "*")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "/")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "and")
+	{
+		return 0;
+	}
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d expected OP_MULTIPLICATIVO", tabela[pos].linha);	
+	}
+	return 1;
+}
+
+int op_aditivo(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "+")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "-")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "or")
+	{
+		return 0;
+	}
+	
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d expected OP_ADITIVO", tabela[pos].linha);
+	}
+	return 1;
+}
+
+int op_relacional(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "=")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "<")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == ">")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "<=")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == ">=")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "<>")
+	{
+		return 0;
+	}
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d expected OP_RELACIONAL", tabela[pos].linha);
+	}
+	return 1;
+}
+
+int termo2(vector <token> tabela, int must)
+{
+	if(!op_multiplicativo(tabela, must))
+	{
+		pos++;
+		if(!fator(tabela, 1))
+		{
+			pos++;
+			if(!termo2(tabela, 0))
+			{
+				return 0;
+			}
+		}
+		
+		return 1;
+	}
+	else
+	{
+		pos--;
+	}
+	return 0;
+}
+
+int termo(vector <token> tabela, int must)
+{
+	if(!fator(tabela, must))
+	{
+		pos++;
+		if(!termo2(tabela, 0))
+		{
+			return 0;
+		}
+	}
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d TERMO INDETERMINADO", tabela[pos].linha);
+	}
+	return 1;
+}
+
+int fator(vector <token> tabela, int must)
+{
+	
+	if(tabela[pos].tokenTipo == "Identificador")
+	{
+		pos++;
+		if(tabela[pos].tokenNome == "(")
+		{
+			pos++;
+			if(!lista_de_expressoes(tabela, 1))
+			{
+				pos++;
+				if(tabela[pos].tokenNome == ")")
+				{
+					return 0;
+				}
+				else
+				{
+					printf("\n SINTATICO -> ERRO linha %d expected ')'", tabela[pos].linha);
+				}
+			}
+			return 1;
+		}
+		else
+		{
+			pos--;
+			return 0;
+		}
+	}
+	else if(tabela[pos].tokenTipo == "Numero Inteiro")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenTipo == "Real")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "true")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "false")
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "(")
+	{
+		pos++;
+		if(!expressao(tabela, 1))
+		{
+			pos++;
+			if(tabela[pos].tokenNome == ")")
+			{
+				return 0;
+			}
+			else
+			{
+				printf("\n SINTATICO -> ERRO linha %d expected ')'", tabela[pos].linha);
+			}
+		}
+		
+		return 1;
+	}
+	else if(tabela[pos].tokenNome == "not")
+	{
+		pos++;
+		if(!fator(tabela, 1))
+		{
+			return 0;
+		}
+	}
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d FATOR INDETERMINADO", tabela[pos].linha);
+	}
+	return 1;
+}
+
+int expressao_simples2(vector <token> tabela, int must)
+{
+	if(!op_aditivo(tabela, must))
+	{
+		pos++;
+		if(!termo(tabela, 1))
+		{
+			pos++;
+			if(!expressao_simples2(tabela, 0))
+			{
+				return 0;
+			}
+		}
+		return 1;
+	}
+	else
+	{
+		pos--;
+	}
+	return 0;
+}
+
+int expressao_simples(vector <token> tabela, int must)
+{
+	if(!termo(tabela, 0))
+	{
+		pos++;
+		if(!expressao_simples2(tabela, 0))
+		{
+			return 0;
+		}
+	}
+	else if(!sinal(tabela, 0))
+	{
+		pos++;
+		if(!termo(tabela, 1))
+		{
+			pos++;
+			if(!expressao_simples2(tabela, 0))
+			{
+				return 0;
+			}
+		}
+	}
+
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d TERMO EXPRESSAO", tabela[pos].linha);
+		return 1;
+	}
+	return 0;
+}
+
+
+int expressao(vector <token> tabela, int must)
+{
+	if(!expressao_simples(tabela, must))
+	{
+		pos++;
+		if(!op_relacional(tabela, 0))
+		{
+			pos++;
+			if(!expressao_simples(tabela, 1))
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
+}
+
+int parte_else(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "else")
+	{
+		pos++;
+		if(comando(tabela, 1))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;//LEMBRETE
+		}
+	}
+	else
+	{
+		pos--;
+	}
+	return 1;
+}
+
+int lista_de_expressoes2(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == ",")
+	{
+		pos++;
+		if(!expressao(tabela, 1))
+		{
+			pos++;
+			if(!lista_de_expressoes2(tabela, 0))
+			{
+				return 0;
+			}
+		}
+		
+		return 1;
+	}
+	else
+	{
+		pos--;
+	}
+	return 0;
+}
+
+int lista_de_expressoes(vector <token> tabela, int must)
+{
+	if(!expressao(tabela, must))
+	{
+		pos++;
+		if(!lista_de_expressoes2(tabela, 0))
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
+
+int ativacao_de_procedimento(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenTipo == "Identificador")
+	{
+		pos++;
+		if(tabela[pos].tokenNome == "(")
+		{
+			pos++;
+			if(!lista_de_expressoes(tabela, must))
+			{
+				pos++;
+				if(tabela[pos].tokenNome == ")")
+				{
+					return 0;
+				}
+				else
+				{
+					printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				}
+			}
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	else
+	{
+		if(must)
+		{
+			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		}
+	}
+	return 1;
+}
+
+int variavel(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenTipo == "Identificador")
+	{
+		return 0;
+	}
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+	}
+	return 1;
+}
+
+int comando(vector <token> tabela, int must)
+{
+	if(!variavel(tabela, 0))
+	{
+		pos++;
+		if(tabela[pos].tokenNome == ":=")
+		{
+			pos++;
+			if(!expressao(tabela, 1))
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			printf("\n SINTATICO -> ERRO linha %d :=", tabela[pos].linha);
+		}
+		
+		return 1;
+		
+	}
+	else if(!ativacao_de_procedimento(tabela, 0))
+	{
+		return 0;
+	}
+	else if(!comando_composto(tabela, 0))
+	{
+		return 0;
+	}
+	else if(tabela[pos].tokenNome == "if")
+	{
+		pos++;
+		if(!expressao(tabela, 1))
+		{
+			if(tabela[pos].tokenNome == "then")
+			{
+				pos++;
+				if(!comando(tabela, 1))
+				{
+					if(!parte_else(tabela, 0))
+					{
+						return 0;
+					}
+					pos++;
+					return 0;
+				}
+			}
+			else
+			{
+				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			}
+		}
+		
+		return 1;
+	}
+	else if(tabela[pos].tokenNome == "while")
+	{
+		pos++;
+		if(!expressao(tabela, 1))
+		{
+			if(tabela[pos].tokenNome == "do")
+			{
+				pos++;
+				if(!comando(tabela, 1))
+				{
+					return 0;
+				}
+			}
+			else
+			{
+				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			}
+		}
+		
+		return 1;
+		
+	}
+	
+	if(must)
+	{
+		printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		return 1;
+	}
+	
+	return 1;
+}
+
+int lista_de_comandos2(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == ";")
+	{
+		pos++;
+		if(!comando(tabela, 1))
+		{
+			if(!lista_de_comandos2(tabela, 0))
+			{
+				return 0;
+			}
+		}
+		return 1;
+	}
+	
+	return 0;
+}
+
+int lista_de_comandos(vector <token> tabela, int must)
+{
+	if(!comando(tabela, must))
+	{
+		if(!lista_de_comandos2(tabela, 0))
+		{
+			return 0;
+		}
+	}
+	
+	return 1;
+}
+
+int comandos_opcionais(vector <token> tabela, int must)
+{
+	if(lista_de_comandos(tabela, must))
+	{
+		return  1;
+	}
+	return 0;
+}
+
+int comando_composto(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "begin")
+	{
+		pos++;
+		comandos_opcionais(tabela, 0);
+		if(tabela[pos].tokenNome == "end")
+		{
+			pos++;
+			return 0;
+		}
+		else
+		{
+			if(must)
+			{
+				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			}
+		}
+	}
+	else
+	{
+		if(must)
+		{
+			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		}
+	}
+	return 1;
+}
+
+int declaracao_de_subprograma(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "procedure")
+	{
+		pos++;
+		if(tabela[pos].tokenTipo == "Identificador")
+		{
+			pos++;
+			if(!argumentos(tabela, 0))
+			{
+				pos++;
+				if(tabela[pos].tokenNome == ";")
+				{
+					pos++;
+					declaracoes_variaveis(tabela, 0);
+					pos++;
+					declaracoes_de_subprogramas(tabela, 0);
+					pos++;
+					comando_composto(tabela, 1);
+					pos--;
+					if(tabela[pos].tokenNome == "end")
+					{
+						pos--;
+						return 0;
+					}
+					
+					return 1;
+				}
+				else
+				{
+					printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				}
+			}
+		}
+		else
+		{
+			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		}
+	}
+	else
+	{
+		pos--;
+		if(must)
+		{
+			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			return 1;
+		}
+	}
+	
+	return 1;
+}
+
+int declaracoes_de_subprogramas2(vector <token> tabela, int must)
+{
+	if(declaracao_de_subprograma(tabela, 0))
+	{
+		return 1;
+	}
+	else
+	{
+		pos++;
+		if(tabela[pos].tokenNome == ";")
+		{
+			pos++;
+			if(declaracoes_de_subprogramas2(tabela, 0))
+			{
+				return 1;
+			}
+		}
+		else
+		{
+			if(must)
+			{
+				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			}
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int declaracoes_de_subprogramas(vector <token> tabela, int must)
+{
+	if(declaracoes_de_subprogramas2(tabela, must))
+	{
+		return 1;
+	}
+		
+	return 0;
+}
+
+int programa(vector <token> tabela, int must)
+{
+	if(tabela[pos].tokenNome == "program")
+	{
+		pos++;
+		if(tabela[pos].tokenTipo == "Identificador")
+		{
+			pos++;
+			if(tabela[pos].tokenNome == ";")
+			{
+				pos++;
+				declaracoes_variaveis(tabela, 0);
+				
+				pos++;
+				declaracoes_de_subprogramas(tabela, 0);
+				
+				pos++;
+				comando_composto(tabela, 1);
+				
+				if(tabela[pos].tokenNome == ".")
+				{
+					return 0;
+				}
+				else
+				{
+					if(must)
+					{
+						printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+					}
+				}
+			}
+			else
+			{
+				if(must)
+				{
+					printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+				}
+			}
+		}
+		else
+		{
+			if(must)
+			{
+				printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+			}
+		}
+	}
+	else
+	{
+		if(must)
+		{
+			printf("\n SINTATICO -> ERRO linha %d", tabela[pos].linha);
+		}
+	}
+	return 1;
+}
+
+int Sintatico(vector <token> tabela)
+{
+	if(programa(tabela, 1))
+	{
+		return 1;
+	}
+	printf("\n xito...");
+	return 0;
+}
+/*int AnalisadorSintatico(vector <token> tabela)
+{
+	
+	if(Program(1))
+		
+}*/
+
 int main()
 {
     vector <char> x;
@@ -428,6 +1414,7 @@ int main()
     {
         cout << y[i].tokenNome << " -- " << y[i].tokenTipo << " -- " << y[i].linha << endl;
     }
+	Sintatico(y);
 
     return 0;
 }
