@@ -6,12 +6,17 @@
 using namespace std;
 
 int pos = 0;
-
+int erroPil = 0;
 typedef struct{
     string tokenNome;
     string tokenTipo;
     int linha;
 }token;
+
+struct conteudoPil{
+    string var;
+    string tipo;
+};
 
 
 int tipo(vector <token> tabela, int must);
@@ -41,8 +46,252 @@ vector <char> leArquivo(const char *arq)
     return a;
 }
 
+string opAri;
+vector <string> Pil;
+vector <conteudoPil> refPil;
 
+void PilCond(){
+    int topo = Pil.size() - 1;
+    int subtopo = topo - 1;
+    if(Pil[topo] == "boolean" && Pil[subtopo] == "boolean")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+    }
+    else
+    {
+        if(!erroPil)
+        {
+            erroPil++;
+            cout << "\nERROR (condicao)";//completar depois
+        }
+    }
+    Pil.clear();
+}
 
+void PilArit()
+{
+    int topo = Pil.size() - 1;
+    int subtopo = topo - 1;
+    if(opAri == "and" || opAri == "or")
+    {
+        if(Pil[topo] == "boolean" && Pil[subtopo] == "boolean")
+        {
+            Pil.pop_back();
+        }
+        else
+        {
+            if(!erroPil)
+            {
+                erroPil++;
+                cout << "\n ERROR (logico)";
+            }
+        }
+    }
+    else
+    {
+        if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Inteiro")
+        {
+            Pil.pop_back();
+        }
+        else if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Real")
+        {
+            Pil.pop_back();
+        }
+        else if(Pil[topo] == "Numero Real" && Pil[subtopo] == "Numero Inteiro")
+        {
+            Pil.pop_back();
+            Pil.pop_back();
+            Pil.push_back("Numero Real");
+        }
+        else if(Pil[topo] == "Numero Real" && Pil[subtopo] == "Numero Real")
+        {
+            Pil.pop_back();
+        }
+        else{
+            if(!erroPil)
+            {
+                erroPil++;
+                cout << "ERRO (Aritmetico)";
+            }
+        }
+    }
+}
+
+void PilRel()
+{
+    int topo = Pil.size() - 1;
+    int subtopo = topo - 1;
+
+    if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Inteiro")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+        Pil.push_back("boolean");
+    }
+    else if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Real")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+        Pil.push_back("boolean");
+    }
+    else if(Pil[topo] == "Numero Real" && Pil[subtopo] == "Numero Real")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+        Pil.push_back("boolean");
+    }
+    else if(Pil[topo] == "Numero Real" && Pil[subtopo] == "Numero Real")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+        Pil.push_back("boolean");
+    }
+    else{
+        if(!erroPil)
+        {
+            erroPil++;
+            cout << "ERRO (Relacional)";
+        }
+    }
+}
+
+void PilAtri(token erro)
+{
+    int topo = Pil.size() - 1;
+    int subtopo = topo - 1;
+
+    if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Inteiro")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+    }
+    if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Real")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+    }
+    if(Pil[topo] == "Numero Real" && Pil[subtopo] == "Numero Real")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+    }
+    if(Pil[topo] == "boolean" && Pil[subtopo] == "boolean")
+    {
+        Pil.pop_back();
+        Pil.pop_back();
+    }
+    else
+    {
+        if(!erroPil)
+        {
+            erroPil++;
+            cout << "\nERRO (Atribuicao)";
+            cout << "\nSimbolo: " << erro.tokenNome << "\nlinha: " << erro.linha;
+        }
+    }
+    Pil.clear();
+}
+
+void Pil_Inicio()
+{
+    conteudoPil duo;
+    duo.var = "$";
+    duo.tipo = "ref";
+    refPil.push_back(duo);
+}
+
+int checaPil(vector <token> tabela)
+{
+    int aux = 0;
+    for(int i = refPil.size() - 1; i > 0; --i)
+    {
+        if(refPil[i].var == tabela[pos].tokenNome)
+        {
+            aux++;
+            break;
+        }
+    }
+    if(!aux)
+    {
+        cout << "\n identificador nao reconhecido/declarado";
+        erroPil++;
+        return 0;
+    }
+    return 1;
+}
+
+void declaraPil(vector <token> tabela)
+{
+    conteudoPil duo;
+    duo.var = tabela[pos].tokenNome;
+    duo.tipo = "NULL";
+
+    for(int i = refPil.size() - 1; i >= 0; --i){
+        if(refPil[i].var == "$")
+        {
+            refPil.push_back(duo);
+            break;
+        }
+        else if(refPil[i].var == tabela[pos].tokenNome)
+        {
+            cout << "ERRO Ja declarada nesse escopo";
+            erroPil++;
+            break;
+        }
+    }
+}
+
+void Escopo()
+{
+    conteudoPil duo;
+    duo.var = "$";
+    duo.tipo = "ref";
+    refPil.push_back(duo);
+}
+
+void PopEscopo()
+{
+    while(refPil.back().var != "$")
+    {
+        refPil.pop_back();
+    }
+    refPil.pop_back();
+
+}
+
+void IdentificaPil(vector <token> tabela)
+{
+    for(int i = refPil.size() - 1; i >= 0; --i)
+    {
+        if(refPil[i].tipo != "NULL")
+        {
+            break;
+        }
+        else
+        {
+            if(tabela[pos].tokenNome == "integer")
+                refPil[i].tipo = "Numero Inteiro";
+            if(tabela[pos].tokenNome == "real")
+                refPil[i].tipo = "Numero Real";
+            if(tabela[pos].tokenNome == "boolean")
+                refPil[i].tipo = "boolean";
+        }
+    }
+}
+
+string checaTipo(token aux)
+{
+    for(int i = refPil.size() - 1; i >= 0; --i)
+    {
+        if(refPil[i].var == aux.tokenNome)
+        {
+            return refPil[i].tipo;
+        }
+    }
+    return " ";
+
+}
 vector <token> Tabela(vector <char> textoIn)
 {
     int linhaAtual = 1;
@@ -102,7 +351,7 @@ vector <token> Tabela(vector <char> textoIn)
                     posicaoChar++;
                     posicao++;
                     real = 1;
-					
+
                 }
                 else
                 {
@@ -113,17 +362,17 @@ vector <token> Tabela(vector <char> textoIn)
             }
             if(real)
             {
-				
+
 				posicaoprevia = posicao;
                 string lido(arrayaux, posicaoChar);
                 if(textoIn[posicao+1]=='x')
                 {
-                    
+
                     arrayaux[posicaoChar] = textoIn[posicao + 1];
                     x = 1;
                     posicaoChar++;
                     posicao++;
-					
+
                     if(textoIn[posicao+1]>= '0' && textoIn[posicao+1] <= '9')
                     {
                         posicao++;
@@ -147,7 +396,7 @@ vector <token> Tabela(vector <char> textoIn)
                             posicao--;
                             break;
                         }
-						
+
 						}
                         if(real)
                         {
@@ -158,7 +407,7 @@ vector <token> Tabela(vector <char> textoIn)
 								arrayaux[posicaoChar] = textoIn[posicao + 1];
 								posicaoChar++;
 								posicao++;
-								
+
 								if(textoIn[posicao+1] >= '0' && textoIn[posicao+1] <= '9')
 								{
 									posicao++;
@@ -188,7 +437,7 @@ vector <token> Tabela(vector <char> textoIn)
 									{
 										if(textoIn[posicao+1]=='z')
 										{
-											
+
 											z = 1;
 											arrayaux[posicaoChar] = textoIn[posicao + 1];
 											posicaoChar++;
@@ -203,12 +452,12 @@ vector <token> Tabela(vector <char> textoIn)
 									}
 								}
 							}
-							
+
                         }
                     }
                 }
                 if(!x||!y||!z)
-                {	
+                {
 					aux.linha = linhaAtual;
 					aux.tokenTipo = "Real";
 					aux.tokenNome = lido;
@@ -363,7 +612,7 @@ vector <token> Tabela(vector <char> textoIn)
             aux.tokenTipo = "Operador Aditivo";
             aux.linha = linhaAtual;
             tokenLista.push_back(aux);
-        /*Não otimizado***
+        /*Nï¿½o otimizado***
             if(textoIn[posicao] == '+')
             {
                 aux.tokenNome = "+";
@@ -390,7 +639,7 @@ vector <token> Tabela(vector <char> textoIn)
             aux.linha = linhaAtual;
             tokenLista.push_back(aux);
         }
-            //Não otimizado
+            //Nï¿½o otimizado
             /*
             if(textoIn[posicao] == '/')
             {
@@ -417,7 +666,7 @@ vector <token> Tabela(vector <char> textoIn)
         }
         else if((!espaco)||(!tab))
         {
-            cout << "Caractere não reconhecido: " << textoIn[posicao] << endl;
+            cout << "Caractere nï¿½o reconhecido: " << textoIn[posicao] << endl;
             cout << "Linha " << linhaAtual << endl;
             return error;
         }
@@ -436,12 +685,13 @@ int lista_de_identificadores2(vector <token> tabela, int must)
 		pos++;
 		if(tabela[pos].tokenTipo == "Identificador")
 		{
+		    declaraPil(tabela);
 			pos++;
 			if(lista_de_identificadores2(tabela, must))
 			{
 				return 1;
 			}
-			
+
 		}
 		else
 		{
@@ -449,20 +699,21 @@ int lista_de_identificadores2(vector <token> tabela, int must)
 			return 1;
 		}
 	}
-	
+
 	return 0;
 }
 
 int lista_de_identificadores(vector <token> tabela, int must)
 {
-	if(tabela[pos].tokenTipo == "Identificador")//Possivel alteração depois para strcmp
+	if(tabela[pos].tokenTipo == "Identificador")//Possivel alteraï¿½ï¿½o depois para strcmp
 	{
+	    declaraPil(tabela);
 		pos++;
 		if(lista_de_identificadores2(tabela, 0))
 		{
 			return 1;
 		}
-		
+
 		return 0;
 	}
 	else
@@ -472,9 +723,9 @@ int lista_de_identificadores(vector <token> tabela, int must)
 			printf("\nERRO linha %d ID", tabela[pos].linha);
 			return 1;
 		}
-	
+
 	}
-	
+
 	return 1;
 }
 
@@ -497,7 +748,7 @@ int lista_declaracoes_variaveis2(vector <token> tabela, int must)
 						return 1;
 					}
 					return 0;
-					
+
 				}
 				else
 				{
@@ -523,24 +774,27 @@ int tipo(vector <token> tabela, int must)
 {
 	if(tabela[pos].tokenNome == "integer")
 	{
+	    IdentificaPil(tabela);
 		return 0;
 	}
-	
+
 	else if(tabela[pos].tokenNome == "real")
 	{
+	    IdentificaPil(tabela);
 		return 0;
 	}
-	
+
 	else if(tabela[pos].tokenNome == "boolean")
 	{
+	    IdentificaPil(tabela);
 		return 0;
 	}
-	
+
 	if(must)
 	{
 		printf("\nERRO linha %d TIPO", tabela[pos].linha);
 	}
-	
+
 	return 1;
 }
 
@@ -560,7 +814,7 @@ int lista_declaracoes_variaveis(vector <token> tabela, int must)
 				{
 					return 1;
 				}
-				
+
 				return 0;
 			}
 			else
@@ -578,9 +832,9 @@ int lista_declaracoes_variaveis(vector <token> tabela, int must)
 		{
 			printf("\nERRO linha %d expected ':'", tabela[pos].linha);
 		}
-		
+
 	}
-	
+
 	return 1;
 }
 
@@ -616,30 +870,31 @@ int lista_de_parametros2(vector <token> tabela, int must)
 					{
 						return 0;
 					}
-		
+
 				}
 			}
 			else
 			{
-				printf("\nERRO linha %d expected ':'", tabela[pos].linha);
+				printf("\nERRO linha %d expected ':' ola", tabela[pos].linha);
 			}
 		}
-		
+
 		return 1;
 	}
 	else
 	{
 		pos--;
 	}
-	
+
 	return 0;
 }
 
 int lista_de_parametros(vector <token> tabela, int must)
 {
+
 	if(!lista_de_identificadores(tabela, must))
 	{
-		pos++;
+
 		if(tabela[pos].tokenNome == ":")
 		{
 			pos++;
@@ -654,9 +909,9 @@ int lista_de_parametros(vector <token> tabela, int must)
 		}
 		else
 		{
-			printf("\nERRO linha %d expected ':'", tabela[pos].linha);	
+			printf("\nERRO linha %d expected ':' ha", tabela[pos].linha);
 		}
-	}	
+	}
 	return 1;
 }
 
@@ -677,7 +932,7 @@ int argumentos(vector <token> tabela, int must)
 				printf("\nERRO linha %d expected ')'", tabela[pos].linha);
 				return 1;
 			}
-			
+
 		}
 
 		return 1;
@@ -686,7 +941,7 @@ int argumentos(vector <token> tabela, int must)
 	{
 		pos--;
 	}
-	
+
 	return 0;
 }
 
@@ -702,7 +957,7 @@ int sinal(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\nERRO linha %d SINAL", tabela[pos].linha);	
+		printf("\nERRO linha %d SINAL", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -723,7 +978,7 @@ int op_multiplicativo(vector <token> tabela, int must)
 	}
 	if(must)
 	{
-		printf("\nERRO linha %d expected OP_MULTIPLICATIVO", tabela[pos].linha);	
+		printf("\nERRO linha %d expected OP_MULTIPLICATIVO", tabela[pos].linha);
 	}
 	return 1;
 }
@@ -742,7 +997,7 @@ int op_aditivo(vector <token> tabela, int must)
 	{
 		return 0;
 	}
-	
+
 	if(must)
 	{
 		printf("\nERRO linha %d expected OP_ADITIVO", tabela[pos].linha);
@@ -790,13 +1045,14 @@ int termo2(vector <token> tabela, int must)
 		pos++;
 		if(!fator(tabela, 1))
 		{
+		    PilArit();
 			pos++;
 			if(!termo2(tabela, 0))
 			{
 				return 0;
 			}
 		}
-		
+
 		return 1;
 	}
 	else
@@ -825,9 +1081,15 @@ int termo(vector <token> tabela, int must)
 
 int fator(vector <token> tabela, int must)
 {
-	
+
 	if(tabela[pos].tokenTipo == "Identificador")
 	{
+	    //pos++;
+	    if(checaPil(tabela))
+        {
+            token aux = tabela[pos];
+            Pil.push_back(checaTipo(aux));
+        }
 		pos++;
 		if(tabela[pos].tokenNome == "(")
 		{
@@ -868,6 +1130,7 @@ int fator(vector <token> tabela, int must)
 	{
 		return 0;
 	}
+
 	else if(tabela[pos].tokenNome == "(")
 	{
 		pos++;
@@ -883,7 +1146,7 @@ int fator(vector <token> tabela, int must)
 				printf("\nERRO linha %d expected ')'", tabela[pos].linha);
 			}
 		}
-		
+
 		return 1;
 	}
 	else if(tabela[pos].tokenNome == "not")
@@ -908,6 +1171,7 @@ int expressao_simples2(vector <token> tabela, int must)
 		pos++;
 		if(!termo(tabela, 1))
 		{
+		    PilArit();
 			pos++;
 			if(!expressao_simples2(tabela, 0))
 			{
@@ -965,6 +1229,7 @@ int expressao(vector <token> tabela, int must)
 			pos++;
 			if(!expressao_simples(tabela, 1))
 			{
+			    //PilRel(); LEMBRAR DE AJEITAR
 				return 0;
 			}
 		}
@@ -973,7 +1238,7 @@ int expressao(vector <token> tabela, int must)
 			return 0;
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -1011,7 +1276,7 @@ int lista_de_expressoes2(vector <token> tabela, int must)
 				return 0;
 			}
 		}
-		
+
 		return 1;
 	}
 	else
@@ -1074,6 +1339,11 @@ int variavel(vector <token> tabela, int must)
 {
 	if(tabela[pos].tokenTipo == "Identificador")
 	{
+	    if(checaPil(tabela))
+        {
+            token aux = tabela[pos];
+            Pil.push_back(checaTipo(aux));
+        }
 		return 0;
 	}
 	if(must)
@@ -1087,12 +1357,18 @@ int comando(vector <token> tabela, int must)
 {
 	if(!variavel(tabela, 0))
 	{
+
+        token aux = tabela[pos];
 		pos++;
-		if(tabela[pos].tokenNome == ":=")
+		if(tabela[pos].tokenTipo == "Atribuicao")
 		{
+		    Pil.push_back(checaTipo(aux));
 			pos++;
 			if(!expressao(tabela, 1))
 			{
+
+			    token aux = tabela[pos];
+			    PilAtri(aux);
 				return 0;
 			}
 		}
@@ -1100,9 +1376,9 @@ int comando(vector <token> tabela, int must)
 		{
 			printf("\nERRO linha %d :=", tabela[pos].linha);
 		}
-		
+
 		return 1;
-		
+
 	}
 	else if(!ativacao_de_procedimento(tabela, 0))
 	{
@@ -1114,6 +1390,7 @@ int comando(vector <token> tabela, int must)
 	}
 	else if(tabela[pos].tokenNome == "if")
 	{
+	    Pil.push_back("boolean");
 		pos++;
 		if(!expressao(tabela, 1))
 		{
@@ -1135,11 +1412,12 @@ int comando(vector <token> tabela, int must)
 				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 		}
-		
+
 		return 1;
 	}
 	else if(tabela[pos].tokenNome == "while")
 	{
+	    Pil.push_back("boolean");
 		pos++;
 		if(!expressao(tabela, 1))
 		{
@@ -1156,17 +1434,44 @@ int comando(vector <token> tabela, int must)
 				printf("\nERRO linha %d", tabela[pos].linha);
 			}
 		}
-		
+
 		return 1;
-		
+
 	}
-	
+
+  else if(tabela[pos].tokenNome == "do")
+	{
+		pos++;
+		if(!comando(tabela, 1))
+		{
+			if(tabela[pos].tokenNome == "while")
+			{
+				pos++;
+        if(tabela[pos].tokenNome == "(")
+        {
+          if(!expressao(tabela, 1))
+  				{
+            if(tabela[pos].tokenNome == ")") return 0;
+  				}
+        }
+
+			}
+			else
+			{
+				printf("\nERRO linha %d", tabela[pos].linha);
+			}
+		}
+
+		return 1;
+
+	}
+
 	if(must)
 	{
 		printf("\nERRO linha %d", tabela[pos].linha);
 		return 1;
 	}
-	
+
 	return 1;
 }
 
@@ -1184,7 +1489,7 @@ int lista_de_comandos2(vector <token> tabela, int must)
 		}
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -1197,7 +1502,7 @@ int lista_de_comandos(vector <token> tabela, int must)
 			return 0;
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -1243,9 +1548,12 @@ int declaracao_de_subprograma(vector <token> tabela, int must)
 {
 	if(tabela[pos].tokenNome == "procedure")
 	{
+	    Escopo();
 		pos++;
 		if(tabela[pos].tokenTipo == "Identificador")
 		{
+		    declaraPil(tabela);
+		    refPil.back().tipo = "procedure";
 			pos++;
 			if(!argumentos(tabela, 0))
 			{
@@ -1258,24 +1566,25 @@ int declaracao_de_subprograma(vector <token> tabela, int must)
 					declaracoes_de_subprogramas(tabela, 0);
 					pos++;
 					comando_composto(tabela, 1);
+					PopEscopo();
 					pos--;
 					if(tabela[pos].tokenNome == "end")
 					{
 						pos--;
 						return 0;
 					}
-					
+
 					return 1;
 				}
 				else
 				{
-					printf("\nERRO linha %d", tabela[pos].linha);
+					printf("\nERRO linha oi %d", tabela[pos].linha);
 				}
 			}
 		}
 		else
 		{
-			printf("\nERRO linha %d", tabela[pos].linha);
+			printf("\nERRO linha ola %d", tabela[pos].linha);
 		}
 	}
 	else
@@ -1287,7 +1596,7 @@ int declaracao_de_subprograma(vector <token> tabela, int must)
 			return 1;
 		}
 	}
-	
+
 	return 1;
 }
 
@@ -1326,29 +1635,32 @@ int declaracoes_de_subprogramas(vector <token> tabela, int must)
 	{
 		return 1;
 	}
-		
+
 	return 0;
 }
 
 int programa(vector <token> tabela, int must)
 {
+    Pil_Inicio();
 	if(tabela[pos].tokenNome == "program")
 	{
 		pos++;
 		if(tabela[pos].tokenTipo == "Identificador")
 		{
+		    declaraPil(tabela);
+		    refPil.back().tipo = "program";
 			pos++;
 			if(tabela[pos].tokenNome == ";")
 			{
 				pos++;
 				declaracoes_variaveis(tabela, 0);
-				
+
 				pos++;
 				declaracoes_de_subprogramas(tabela, 0);
-				
+
 				pos++;
 				comando_composto(tabela, 1);
-				
+
 				if(tabela[pos].tokenNome == ".")
 				{
 					return 0;
