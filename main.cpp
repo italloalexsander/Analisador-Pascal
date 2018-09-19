@@ -123,6 +123,7 @@ void PilRel(vector <token> tabela)
 
     int topo = Pil.size() - 1;
     int subtopo = topo - 1;
+    cout << "\n" << Pil[topo] << " " << Pil[subtopo];
 
     if(Pil[topo] == "Numero Inteiro" && Pil[subtopo] == "Numero Inteiro")
     {
