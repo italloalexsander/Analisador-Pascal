@@ -152,7 +152,7 @@ void PilRel(vector <token> tabela)
         if(!erroPil)
         {
             erroPil++;
-            cout << "ERRO (Relacional)" << tabela[pos].linha;
+            cout << "\nERRO (Relacional) linha: " << tabela[pos].linha;
         }
     }
 }
@@ -222,7 +222,7 @@ int checaPil(vector <token> tabela)
     }
     if(!aux)
     {
-        cout << "\n identificador nao reconhecido/declarado";
+        cout << "\n Identificador nao reconhecido/declarado";
         erroPil++;
         return 0;
     }
@@ -243,7 +243,7 @@ void declaraPil(vector <token> tabela)
         }
         else if(refPil[i].var == tabela[pos].tokenNome)
         {
-            cout << "ERRO Ja declarada nesse escopo";
+            cout << "\nERRO Ja declarado nesse escopo: " << refPil[i].var;
             erroPil++;
             break;
         }
@@ -1405,6 +1405,7 @@ int comando(vector <token> tabela, int must)
 		pos++;
 		if(!expressao(tabela, 1))
 		{
+		    PilCond();
 			if(tabela[pos].tokenNome == "then")
 			{
 				pos++;
@@ -1432,6 +1433,8 @@ int comando(vector <token> tabela, int must)
 		pos++;
 		if(!expressao(tabela, 1))
 		{
+		    PilCond();
+		    pos++;
 			if(tabela[pos].tokenNome == "do")
 			{
 				pos++;
@@ -1674,6 +1677,11 @@ int programa(vector <token> tabela, int must)
 
 				if(tabela[pos].tokenNome == ".")
 				{
+				    if(erroPil)
+                    {
+                        cout << "\nSINTATICO NAO CONCLUIDO, ERRO SEMANTICO";
+                        return 1;
+				    }
 					return 0;
 				}
 				else
