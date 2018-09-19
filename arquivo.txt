@@ -1,40 +1,19 @@
-program Test3; {programa para teste do lexico}
- 
-22.5x32.6y 56.8y
-
+program TESTE;
 var
-   NUMERO_x2  : integer;
-   final   : integer;
-
-procedure xyz;
+	x:integer;
+	o:real;
+	u:real;
+	o:boolean;
+procedure limpar (y : integer);
 var
-   x1 : integer;
-   x2 : boolean;
-   begin
-   x1 := 2
-   end
+	z:boolean;
+begin
+	x := 2
+end
 
-
-begin  { tente gerar um erro usando um caracter n‹o permitido.. tipo $
-    adsasdasdas
-    adsda
-    das
-    /n /n /n /n '/n'
-    asd
-    1
-    x
-}
-   //NUMERO :=3*5+7+9/2-5+6*8;
-   NUMERO := 3.9 + 25;
-   if (NUMERO = 21) and (NUMERO >=190) then
-      NUMERO := 10 / 3;
-   final := NUMERO + 2;
-   if(NUMERO = 22) then
-      NUMERO := 2
-      else
-      NUMERO := 3;
-   final:= 2
-
+begin
+	{if (x > 10)
+	then
+	x := x + 2}
 end.
-
 
